@@ -2,4 +2,5 @@
 <h1>Выбрана статья:</h1>
 <h2>{{ article.name }}</h2>
 <div>{{ article.body|slice:":200" }}</div>
+<a href="{% url 'comment_create' article.id %}">Add comment</a>
 {% endblock %}
