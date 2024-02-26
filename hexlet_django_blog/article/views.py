@@ -7,6 +7,7 @@ from hexlet_django_blog.article.models import Article, ArticleComment
 # from .forms import CommentArticleForm
 from .forms import ArticleCommentForm, ArticleForm
 import logging
+from django.contrib import messages
 
 
 logger = logging.getLogger(__name__)
@@ -26,15 +27,22 @@ class IndexView(View):
 
 class ArticleFormCreateView(View):
     def get(self, request, *args, **kwargs):
-        form = ArticleForm()
+        form = ArticleForm(
+            {
+                "name": "default name default name default name default name default name",
+                "body": "default body",
+            }
+        )
         return render(request, "articles/create.html", {"form": form})
 
     def post(self, request, *args, **kwargs):
         form = ArticleForm(request.POST)
         if form.is_valid():  # Если данные корректные, то сохраняем данные формы
             form.save()
+            messages.success(request, "New Article was checked and saved.")
             return redirect("articles")  # Редирект на указанный маршрут
-        # Если данные некорректные, то возвращаем человека обратно на страницу с заполненной формой
+        # Если данные некорректные, то возвращаем человека обратно на страницу с заполн формой
+        messages.error(request, "New article is not valid!")
         return render(request, "articles/create.html", {"form": form})
 
 
@@ -49,6 +57,25 @@ class ArticleView(View):
             },
         )
 
+
+class ArticleFormEditView(View):
+
+    def get(self, request, *args, **kwargs):
+        article_id = kwargs.get('id')
+        article = Article.objects.get(id=article_id)
+        form = ArticleForm(instance=article)
+        return render(request, 'articles/update.html', {'form': form, 'article_id': article_id})
+    
+    def post(self, request, *args, **kwargs):
+        article_id = kwargs.get('id')
+        article = Article.objects.get(id=article_id)
+        form = ArticleForm(request.POST, instance=article)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f"Article '{article.name}' was updated and saved.")
+            return redirect('articles')
+        messages.error(request, "Article has not been updated!")
+        return render(request, 'articles/update.html', {'form': form, 'article_id': article_id})
 
 # class CommentArticleView(View):
 
