@@ -77,6 +77,19 @@ class ArticleFormEditView(View):
         messages.error(request, "Article has not been updated!")
         return render(request, 'articles/update.html', {'form': form, 'article_id': article_id})
 
+
+class ArticleFormDeleteView(View):
+    def post(self, request, *args, **kwargs):
+        article_id = kwargs.get('id')
+        article = Article.objects.get(id=article_id)
+        if article:
+            article.delete()
+            messages.success(request, f"Article '{article.name}' was deleted.")
+        else:
+            messages.error(request, f"Article '{article.name}' was not deleted!")
+
+        return redirect('articles')
+
 # class CommentArticleView(View):
 
 #     def get(self, request, *args, **kwargs):
